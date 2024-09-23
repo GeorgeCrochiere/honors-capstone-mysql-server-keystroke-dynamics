@@ -68,6 +68,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 #include "typelib.h"
 #include "violite.h"
 
+#ifndef _WIN32
+#include "keystroke/compileData/KDRun.h"
+#include "keystroke/keystroke/KDDataStore.h"
+#include "keystroke/keystroke/KDRegStore.h"
+#include "keystroke/keystroke/KeystrokeDynamicsObj.h"
+#include "keystroke/logRawData/logKeystroke.h"
+#endif
+
 #ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
@@ -105,6 +113,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 
 #include "sql-common/net_ns.h"
 #include "sql_common.h"
+
+// Test if linux, then include/use kd
 
 using std::max;
 using std::min;
@@ -1538,6 +1548,24 @@ int main(int argc, char *argv[]) {
       "statement.\n");
   put_info(buff, INFO_INFO);
 
+  // Enable KD - fork and start
+  pid_t currentPID = getpid();
+  pid forkedResult = fork();
+
+  switch (forkedResult) {
+    case -1:
+      put_info("Error: could not enable Keystroke Dynamics.", INFO_INFO);
+      exit(-1);
+      break;
+    case 0:
+      // Child
+      runKDProcess(currentPID);
+      exit(0);
+    default:
+      // Parent - do nothing special
+      break;
+  }
+
   uint protocol = MYSQL_PROTOCOL_DEFAULT;
   uint ssl_mode = 0;
   if (!mysql_get_option(&mysql_handle, MYSQL_OPT_PROTOCOL, &protocol) &&
@@ -2466,6 +2494,8 @@ static int read_and_execute(bool interactive) {
       /* The line itself might start with a comment. Skip that too */
       char *line_past_comments =
           skip_over_comments_and_space(line, strlen(line));
+      // LINE IS HERE
+      put_info(line_past_comments, INFO_INFO);
       com = find_command(line_past_comments);
       if (com) {
         /*
@@ -2805,14 +2835,12 @@ static bool add_line(String &buffer, char *line, size_t line_length,
               discard all characters in the comment after the macro (that is,
               until the end of the comment rather than the next delimiter)
             */
-            for (pos++; *pos && (*pos != '*' || *(pos + 1) != '/'); pos++)
-              ;
+            for (pos++; *pos && (*pos != '*' || *(pos + 1) != '/'); pos++);
             pos--;
           } else {
             for (pos++; *pos && (*pos != *delimiter ||
                                  !is_prefix(pos + 1, delimiter + 1));
-                 pos++)
-              ;  // Remove parameters
+                 pos++);  // Remove parameters
             if (!*pos)
               pos--;
             else
@@ -3352,7 +3380,8 @@ void add_syslog(const char *line) {
            "CONNECTION_ID:%lu, DB_SERVER:'%s', DB:'%s', QUERY:'%s'",
            /* use the cached user/sudo_user value. */
            current_os_sudouser ? current_os_sudouser
-                               : current_os_user ? current_os_user : "--",
+           : current_os_user   ? current_os_user
+                               : "--",
            current_user ? current_user : "--", mysql_thread_id(&mysql_handle),
            current_host ? current_host : "--", current_db ? current_db : "--",
            line);
@@ -4870,8 +4899,7 @@ char *get_arg(char *line, bool get_next_arg) {
 
   ptr = line;
   if (get_next_arg) {
-    for (; *ptr; ptr++)
-      ;
+    for (; *ptr; ptr++);
     if (*(ptr + 1)) ptr++;
   } else {
     /* skip leading white spaces */
