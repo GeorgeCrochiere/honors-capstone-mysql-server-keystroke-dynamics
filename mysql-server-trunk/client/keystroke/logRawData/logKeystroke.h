@@ -19,7 +19,7 @@ using namespace std;
 FILE *fp;
 static int SESSION_TRACKER;  // Keeps track of session
 
-void log_data(char *filename, char *lineToPrint) {
+void log_data(const char *filename, char *lineToPrint) {
   // Open file, account for different situations
   try {
     if (SESSION_TRACKER > 0) {
@@ -34,7 +34,7 @@ void log_data(char *filename, char *lineToPrint) {
     fp = fopen(filename, "w");
   }
 
-  fprintf(fp, lineToPrint);
+  fprintf(fp, "%s", lineToPrint);
   fclose(fp);
 }
 
@@ -64,7 +64,7 @@ int runKDProcess(pid_t parentPID) {
   int lastChar;
 
   // While parent process is alive
-  while (getppid() != parentPID && ev.code != KEY_ESC) {
+  while (getppid() != parentPID || ev.code != KEY_ESC) {
     // if (ev.code != KEY_ENTER) {
     //  Read key and error check
     n = read(fd, &ev, sizeof ev);
@@ -96,7 +96,8 @@ int runKDProcess(pid_t parentPID) {
       // Concat string to add to entrance
       sprintf(phrase, "%ld - %ld - %s - %s\n", seconds, ev.time.tv_usec,
               getKeyboardLetter(ev.code).c_str(), keyPressed(ev.value).c_str());
-      log_data("/tmp/rawKeyData.txt", phrase);
+      const std::string filename = "/tmp/rawKeyData.txt";
+      log_data(filename.c_str(), phrase);
     }
     //}
   }

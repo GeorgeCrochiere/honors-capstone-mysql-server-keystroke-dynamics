@@ -1550,7 +1550,7 @@ int main(int argc, char *argv[]) {
 
   // Enable KD - fork and start
   pid_t currentPID = getpid();
-  pid forkedResult = fork();
+  pid_t forkedResult = fork();
 
   switch (forkedResult) {
     case -1:
