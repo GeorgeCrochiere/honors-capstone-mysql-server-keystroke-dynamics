@@ -72,6 +72,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301  USA
 #include "keystroke/compileData/KDRun.h"
 #include "keystroke/keystroke/KDDataStore.h"
 #include "keystroke/keystroke/KDRegStore.h"
+#include "keystroke/keystroke/KDUserRegData.h"
 #include "keystroke/keystroke/KeystrokeDynamicsObj.h"
 #include "keystroke/logRawData/logKeystroke.h"
 #endif
@@ -1551,6 +1552,9 @@ int main(int argc, char *argv[]) {
   // Enable KD - fork and start
   pid_t currentPID = getpid();
   pid_t forkedResult = fork();
+  KDUserRegData tempReg = KDUserRegData("root", "");
+  tempReg.initSaveLocation();
+  tempReg.createUser();
 
   switch (forkedResult) {
     case -1:
@@ -2494,8 +2498,6 @@ static int read_and_execute(bool interactive) {
       /* The line itself might start with a comment. Skip that too */
       char *line_past_comments =
           skip_over_comments_and_space(line, strlen(line));
-      // LINE IS HERE
-      put_info(line_past_comments, INFO_INFO);
       com = find_command(line_past_comments);
       if (com) {
         /*
@@ -2515,6 +2517,54 @@ static int read_and_execute(bool interactive) {
         if (interactive && status.add_to_history) add_filtered_history(line);
         continue;
       }
+      // LINE IS HERE
+      // put_info(line_past_comments, INFO_INFO);
+      // get username and associated kd data
+      std::string username = current_user;
+      KDUserRegData kdurd = KDUserRegData(username, "");
+
+      KDDataStore kdds = getKDDataNeeded(line_past_comments);
+      KeystrokeDynamics kd = KeystrokeDynamics();
+      processDataRawToCompiled();
+      kdds = processDataCompiledToObj(kdds, false);
+      kdurd.saveKDDataArchieve();
+
+      kd.resetFileDataStore();
+      kd.resetFileCompileStore();
+      std::string kdInitData = kdds.toString();
+      std::string createData = "";
+
+      // Test if create user
+      try {
+        char tmp[11];
+        for (int i = 0; i < 11; i++) {
+          char letter = line_past_comments[i];
+          if ((int)letter >= 97 && (int)letter <= 122) {
+            tmp[i] = (char)((int)letter - 32);
+          } else {
+            tmp[i] = letter;
+          }
+        }
+        if (strcmp(tmp, "CREATE USER") == 0) {
+          // Create user - directory, mention created (note )
+          // get new name
+          std::string line_string = line_past_comments;
+          int index = (int)(line_string.find("@"));
+          char boundChar = line_past_comments[index - 1];
+          int firstBoundChar = (int)(line_string.find(boundChar));
+          std::string nameNew =
+              line_string.substr(firstBoundChar, (index - firstBoundChar - 1));
+          KDUserRegData kdrd = KDUserRegData(nameNew, "");
+          kdrd.createUser();
+        }
+      } catch (const std::exception &e) {
+        // Ignore, just too short to be "create user", should not happen
+      }
+
+      put_info(kdds.toString().c_str(), INFO_INFO);
+      // note: store registration data in location that works, don't focus on
+      // "optimal" storage (don't encrypt, don't modify server, just get it to
+      // function)
     }
     if (add_line(glob_buffer, line, line_length, &in_string, &ml_comment,
                  status.line_buff ? status.line_buff->truncated : false))
@@ -3810,6 +3860,7 @@ static void telemetry_carrier_set(void *carrier_data, const char *key,
 }
 
 static int com_go(String *buffer, char *line) {
+  put_info("Got here\n", INFO_INFO);
   int rc;
   telemetry_span_t *span = nullptr;
 

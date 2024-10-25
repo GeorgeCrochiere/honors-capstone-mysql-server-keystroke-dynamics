@@ -64,7 +64,7 @@ int runKDProcess(pid_t parentPID) {
   int lastChar;
 
   // While parent process is alive
-  while (getppid() != parentPID || ev.code != KEY_ESC) {
+  while (getppid() == parentPID) {
     // if (ev.code != KEY_ENTER) {
     //  Read key and error check
     n = read(fd, &ev, sizeof ev);

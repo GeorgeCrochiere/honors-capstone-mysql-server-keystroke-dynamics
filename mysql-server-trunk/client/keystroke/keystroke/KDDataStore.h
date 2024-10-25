@@ -115,6 +115,65 @@ class KDDataStore {
       return -1;
     }
   }
+
+  void addKDData(KDDataStore &newData) {
+    for (int i = 0; i < 26; i++) {
+      char currentLetter = (char)(i + 97);
+      this->kdLetterData[currentLetter].addLetterData(
+          newData.kdLetterData[currentLetter]);
+    }
+  }
+
+  double getRegDataCount(std::string type, char firstLetter,
+                         char secondLetter) {
+    if (type == "DU") {
+      return ((double)(this->kdLetterData[firstLetter].countHold));
+    } else if (type == "DD") {
+      return ((double)(this->kdLetterData[firstLetter]
+                           .countSecond[((int)secondLetter) - 97]));
+    } else if (type == "UD") {
+      return ((double)(this->kdLetterData[firstLetter]
+                           .countSecond[((int)secondLetter) - 97]));
+    } else {
+      return -1;
+    }
+  }
+
+  double getRegDataSum(std::string type, char firstLetter, char secondLetter) {
+    if (type == "DU") {
+      return ((double)(this->kdLetterData[firstLetter].DUSummation));
+    } else if (type == "DD") {
+      return ((double)(this->kdLetterData[firstLetter]
+                           .DDSummation[((int)secondLetter) - 97]));
+    } else if (type == "UD") {
+      return ((double)(this->kdLetterData[firstLetter]
+                           .UDSummation[((int)secondLetter) - 97]));
+    } else {
+      return -1;
+    }
+  }
+
+  // For registration, test if word and associated features are full
+  bool getWordDataFull(std::string word) {
+    char prevChar = '\0';
+    for (int i = 0; i < (int)word.length(); i++) {
+      char currentChar = word.substr(i, 1).c_str()[0];
+      // test Hold
+      if (this->getRegDataCount("DU", currentChar, '\0') == 0) {
+        return false;
+      }
+
+      // test after characters
+      if (prevChar != '\0') {
+        if (this->getRegDataCount("DD", prevChar, currentChar) == 0 ||
+            this->getRegDataCount("UD", prevChar, currentChar) == 0) {
+          return false;
+        }
+      }
+      prevChar = currentChar;
+    }
+    return true;
+  }
 };
 
 #endif

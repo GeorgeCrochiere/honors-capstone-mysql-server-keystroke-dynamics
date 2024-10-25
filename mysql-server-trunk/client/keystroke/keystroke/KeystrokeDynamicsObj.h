@@ -14,24 +14,29 @@
 
 class KeystrokeDynamics {
  private:
-  std::string testedWords[11];
+  std::string testedWords[14];
 
  public:
   static const std::string RAW_DATA_FP;
   static const std::string MEASURED_DATA_FP;
 
+  // change registration to be passive listening for first so many iterations of
+  // specified keywords, potential increased security during process, after all
+  // data is collected, then resort to fully KD
+
   KeystrokeDynamics() {
     std::string temp[] = {"select", "update",   "from", "where",
                           "delete", "create",   "use",  "describe",
-                          "table",  "database", "and"};
-    for (long unsigned int i = 0; i < temp->length(); i++) {
+                          "table",  "database", "and",  "databases",
+                          "user",   "users"};
+    for (long unsigned int i = 0; i < 14; i++) {
       testedWords[(int)i] = temp[i];
     }
   }
 
   std::string getTestedWords(int index) { return testedWords[index]; }
 
-  int getNumTestedWords() { return 11; }
+  int getNumTestedWords() { return 14; }
 
   // Clear/Reset data store file
   // 0 - Full Reset Success
