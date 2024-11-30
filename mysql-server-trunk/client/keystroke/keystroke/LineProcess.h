@@ -1,6 +1,7 @@
 #ifndef LINEPROCESS_H
 #define LINEPROCESS_H
 
+#include <cmath>
 #include <string>
 
 class LineProcessCompiled {
@@ -13,7 +14,7 @@ class LineProcessCompiled {
   bool isLetter = false;
 
   LineProcessCompiled(std::string input, std::string delimeter) {
-    // key - down time - up time - hold time
+    // key - down time - up time
     try {
       size_t d1 = input.find(delimeter);
       this->letterQuery = input.substr(0, d1);
@@ -23,14 +24,15 @@ class LineProcessCompiled {
       this->downTime = stol(input.substr(0, d2));
       input.erase(0, d2 + delimeter.length());
 
-      size_t d3 = input.find(delimeter);
-      this->upTime = stol(input.substr(0, d3));
-      input.erase(0, d3 + delimeter.length());
+      // size_t d3 = input.find(delimeter);
+      // this->upTime = stol(input.substr(0, d3));
+      // input.erase(0, d3 + delimeter.length());
 
-      this->timeHold = stol(input);
+      this->upTime = stol(input);
+      this->timeHold = std::abs(this->downTime - this->upTime);
 
       if (this->letterQuery.length() == 1) {
-        if (((int)(char)this->letterQuery[0] >= 99) &&
+        if (((int)(char)this->letterQuery[0] >= 97) &&
             ((int)(char)this->letterQuery[0] <= 122)) {
           this->letter = letterQuery[0];
           this->isLetter = true;
@@ -76,7 +78,7 @@ class LineProcessRaw {
         ((long)(this->seconds) * (long)1000000) + (long)(this->microseconds);
 
     if (this->keystroke.length() == 1) {
-      if (((int)(this->keystroke[0]) >= 99) &&
+      if (((int)(this->keystroke[0]) >= 97) &&
           ((int)(this->keystroke[0]) <= 122)) {
         this->isLetter = true;
       }

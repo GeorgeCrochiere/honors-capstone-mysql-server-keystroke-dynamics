@@ -1552,9 +1552,9 @@ int main(int argc, char *argv[]) {
   // Enable KD - fork and start
   pid_t currentPID = getpid();
   pid_t forkedResult = fork();
-  KDUserRegData tempReg = KDUserRegData("root", "");
-  tempReg.initSaveLocation();
-  tempReg.createUser();
+  // KDUserRegData tempReg = KDUserRegData("root", false);
+  // tempReg.initSaveLocation();
+  // tempReg.createUser();
 
   switch (forkedResult) {
     case -1:
@@ -2521,9 +2521,11 @@ static int read_and_execute(bool interactive) {
       // put_info(line_past_comments, INFO_INFO);
       // get username and associated kd data
       std::string username = current_user;
-      KDUserRegData kdurd = KDUserRegData(username, "");
-
+      KDUserRegData kdurd = KDUserRegData(username, false);
+      // std::cout << "started import\n";
+      KDRegStore kdRegData = kdurd.importRegistrationStored();
       KDDataStore kdds = getKDDataNeeded(line_past_comments);
+
       KeystrokeDynamics kd = KeystrokeDynamics();
       processDataRawToCompiled();
       kdds = processDataCompiledToObj(kdds, false);
@@ -2531,7 +2533,6 @@ static int read_and_execute(bool interactive) {
 
       kd.resetFileDataStore();
       kd.resetFileCompileStore();
-      std::string kdInitData = kdds.toString();
       std::string createData = "";
 
       // Test if create user
@@ -2554,17 +2555,87 @@ static int read_and_execute(bool interactive) {
           int firstBoundChar = (int)(line_string.find(boundChar));
           std::string nameNew =
               line_string.substr(firstBoundChar, (index - firstBoundChar - 1));
-          KDUserRegData kdrd = KDUserRegData(nameNew, "");
-          kdrd.createUser();
+          addNewUser(nameNew);
         }
       } catch (const std::exception &e) {
         // Ignore, just too short to be "create user", should not happen
       }
 
-      put_info(kdds.toString().c_str(), INFO_INFO);
+      // put_info(kdds.toString().c_str(), INFO_INFO);
       // note: store registration data in location that works, don't focus on
       // "optimal" storage (don't encrypt, don't modify server, just get it to
       // function)
+
+      // Get registration daata associated w/ user, test if store vs testing
+      bool ableToTest = true;
+      for (int j = 0; j < 14; j++) {
+        if (kdds.useWordsTEMP[j] == 1) {
+          if (kdurd.isWordFull(j) == false) {
+            ableToTest = false;
+            break;
+          }
+        }
+      }
+
+      if (ableToTest) {
+        kdRegData.calcMeans();
+        kdRegData.calcVariances();
+        // Root user not checked
+        double compareScore = 1.25;
+        int goodData = kdRegData.testUserEntry(kdds, compareScore);
+        std::cout << "Tested Data Result Comparison Val: " << compareScore
+                  << "\n";
+        if (username != "root") {
+          switch (goodData) {
+            case -2:  // Not enough data
+              std::cout << "Not enough data captured: Aborting...\n";
+              exit(-2);
+              break;
+
+            case -1:  // Not enough data
+              std::cout << "Invalid User: Aborting...\n";
+              exit(-1);
+              break;
+
+            default:  // 0
+              std::cout << "Valid keystrokes. Proceeding...\n";
+              break;
+          }
+        } else {
+          std::cout << "Allowing due to root user.\n";
+        }
+      } else {
+        // add registration data
+        // This would be where a user password is also requested
+        int numElemsReg = kdRegData.numItems();
+        int numPartial = 11;
+        for (int k = 0; k < 14; k++) {
+          // std::cout << "Index: " << k
+          //           << ", kdds UseWord: " << kdds.useWordsTEMP[k] << "\n";
+          if (kdds.useWordsTEMP[k] == 1) {
+            if (kdurd.getLastEmptyForWord(k) < 10) {
+              numPartial = (kdurd.getLastEmptyForWord(k) < numPartial)
+                               ? kdurd.getLastEmptyForWord(k)
+                               : numPartial;
+            }
+          }
+        }
+        // std::cout << "NumPartial: " << numPartial
+        //           << "\tSize:" << kdRegData.numItems() << "\n";
+
+        if ((numElemsReg == 0)) {
+          kdRegData.addEntry(kdds);
+          kdurd.updateRegTable(&kdRegData, 0);
+        } else if (numPartial < kdRegData.numItems()) {
+          kdRegData.addPartialEntry(kdds, numPartial);
+          kdurd.updateRegTable(&kdRegData, numPartial);
+        } else {
+          kdRegData.addEntry(kdds);
+          kdurd.updateRegTable(&kdRegData, numPartial);
+        }
+        // std::cout << kdRegData.toString() << "\n";
+        // std::cout << kdurd.toString() << "\n";
+      }
     }
     if (add_line(glob_buffer, line, line_length, &in_string, &ml_comment,
                  status.line_buff ? status.line_buff->truncated : false))

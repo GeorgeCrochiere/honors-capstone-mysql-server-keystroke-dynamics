@@ -1,6 +1,7 @@
 #ifndef KDDATASTORE_H
 #define KDDATASTORE_H
 
+#include <cmath>
 #include <iostream>
 #include <map>
 #include <sstream>
@@ -15,6 +16,7 @@ class KDDataStore {
   std::map<char, LetterData> kdLetterData;
 
  public:
+  int useWordsTEMP[14] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   bool isNull = false;
   KDDataStore(std::string input = "") {
     // Reset
@@ -56,7 +58,7 @@ class KDDataStore {
   int addEntryHold(char baseLetter, long DUTime) {
     if (kdLetterData[baseLetter].useLetter == true) {
       kdLetterData[baseLetter].countHold++;
-      kdLetterData[baseLetter].DUSummation += DUTime;
+      kdLetterData[baseLetter].DUSummation += std::abs(DUTime);
       return 0;
     }
     return -1;
@@ -66,8 +68,10 @@ class KDDataStore {
                       long UDTime) {
     if (testIfAfter(baseLetter, letterAfter)) {
       kdLetterData[baseLetter].countSecond[(int)letterAfter - 97]++;
-      kdLetterData[baseLetter].DDSummation[(int)letterAfter - 97] += DDTime;
-      kdLetterData[baseLetter].UDSummation[(int)letterAfter - 97] += UDTime;
+      kdLetterData[baseLetter].DDSummation[(int)letterAfter - 97] +=
+          std::abs(DDTime);
+      kdLetterData[baseLetter].UDSummation[(int)letterAfter - 97] +=
+          std::abs(UDTime);
       return 0;
     }
     return -1;
@@ -119,6 +123,8 @@ class KDDataStore {
   void addKDData(KDDataStore &newData) {
     for (int i = 0; i < 26; i++) {
       char currentLetter = (char)(i + 97);
+      // std::cout << "Char: " << currentLetter << ": \n"
+      //           << this->kdLetterData[currentLetter].toString() << "\n";
       this->kdLetterData[currentLetter].addLetterData(
           newData.kdLetterData[currentLetter]);
     }

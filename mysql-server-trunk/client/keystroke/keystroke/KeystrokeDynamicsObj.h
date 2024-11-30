@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -14,7 +15,8 @@
 
 class KeystrokeDynamics {
  private:
-  std::string testedWords[14];
+  std::vector<std::string> testedWords;
+  // std::string testedWords[14];
 
  public:
   static const std::string RAW_DATA_FP;
@@ -29,12 +31,12 @@ class KeystrokeDynamics {
                           "delete", "create",   "use",  "describe",
                           "table",  "database", "and",  "databases",
                           "user",   "users"};
-    for (long unsigned int i = 0; i < 14; i++) {
-      testedWords[(int)i] = temp[i];
+    for (unsigned long int i = 0; i < 14; i++) {
+      this->testedWords.push_back(temp[(int)i]);
     }
   }
 
-  std::string getTestedWords(int index) { return testedWords[index]; }
+  std::string getTestedWords(int index) { return testedWords.at(index); }
 
   int getNumTestedWords() { return 14; }
 
@@ -79,8 +81,9 @@ class KeystrokeDynamics {
   int checkWordInList(std::string word) {
     std::string testWord = wordToLowercase(word);
 
-    for (long unsigned int i = 0; i < testedWords->length(); i++) {
-      if (testedWords[(int)i] == testWord) {
+    for (long unsigned int i = 0; i < testedWords.size(); i++) {
+      // std::cout << "[" << testedWords.at(i) << ", " << testWord << "]\n";
+      if (testedWords.at(i) == testWord) {
         return i;
       }
     }
@@ -88,21 +91,24 @@ class KeystrokeDynamics {
   }
 
   std::string wordToLowercase(std::string word) {
-    char *wordList = new char[word.length()];
+    std::ostringstream stringBuilder;
+    // char *wordList = new char[word.length()];
+    // std::cout << "Word Length: " << word.length() << "\n";
     for (long unsigned int i = 0; i < word.length(); i++) {
       char temp = word[i];
-      if ((temp >= 65) && (temp <= 92)) {
+      if ((temp >= 65) && (temp <= 90)) {
         temp = temp + 32;
       }
-      wordList[i] = temp;
+      stringBuilder << temp;
     }
-    std::string testWord = wordList;
+    std::string testWord = stringBuilder.str();
     return testWord;
   }
 };
 
-const std::string KeystrokeDynamics::RAW_DATA_FP = "/tmp/rawKeyData.txt";
+const std::string KeystrokeDynamics::RAW_DATA_FP =
+    "/usr/local/src/rawKeyData.txt";
 const std::string KeystrokeDynamics::MEASURED_DATA_FP =
-    "/tmp/compiledKeyData.txt";
+    "/usr/local/src/compiledKeyData.txt";
 
 #endif

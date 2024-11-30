@@ -64,14 +64,18 @@ class LetterData {
 
     // Individual letter data
     for (int i = 0; i < 26; i++) {
-      if ((fromJSON.substr(0, fromJSON.find(";"))).length() > 1) {
+      int id = fromJSON.find(";");
+      std::string subset = fromJSON.substr(0, id + 1);
+      if (subset.length() > 2) {
         this->useSecondLetter[i] = true;
-        fromJSON.erase(0, fromJSON.find(",") + 1);
-        this->DDSummation[i] = stol(fromJSON.substr(0, fromJSON.find(",")));
-        fromJSON.erase(0, fromJSON.find(",") + 1);
-        this->UDSummation[i] = stol(fromJSON.substr(0, fromJSON.find(";")));
+        subset.erase(0, subset.find(",") + 1);
+        this->countSecond[i] = stoi(subset.substr(0, subset.find(",")));
+        subset.erase(0, subset.find(",") + 1);
+        this->DDSummation[i] = stol(subset.substr(0, subset.find(",")));
+        subset.erase(0, subset.find(",") + 1);
+        this->UDSummation[i] = stol(subset.substr(0, subset.find(";")));
       }
-      fromJSON.erase(0, fromJSON.find(";") + 1);
+      fromJSON.erase(0, id + 1);
     }
 
     // return;
@@ -79,6 +83,8 @@ class LetterData {
 
   void addLetterData(LetterData &newData) {
     this->useLetter = this->useLetter || newData.useLetter;
+    // std::cout << "Original: " << this->countHold
+    //           << " New: " << newData.countHold << "\n";
     this->countHold += newData.countHold;
     this->DUSummation += newData.DUSummation;
 
