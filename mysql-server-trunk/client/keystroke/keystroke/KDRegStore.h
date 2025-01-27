@@ -628,6 +628,7 @@ class KDRegStore {
     for (int i = 0; i < capturedFeatures; i++) {
       result += (matSubCalc[i] * rightVector[i]);
     }
+    result = std::abs(result);
 
     std::cout << "CalcedVal: " << result << "\n";
     if (compareVal > result) {
