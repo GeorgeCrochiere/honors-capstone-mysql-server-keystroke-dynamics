@@ -486,7 +486,7 @@ class KDRegStore {
     }
   }
 
-  bool testUserEntry(KDDataStore testData, double compareVal) {
+  int testUserEntry(KDDataStore testData, double compareVal) {
     std::vector<char> firstLetter;
     std::vector<char> secondLetter;
     std::vector<std::string> type;

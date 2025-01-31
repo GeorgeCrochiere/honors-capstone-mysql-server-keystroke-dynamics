@@ -2603,6 +2603,19 @@ static int read_and_execute(bool interactive) {
           }
         } else {
           std::cout << "Allowing due to root user.\n";
+          switch (goodData) {
+            case -2:  // Not enough data
+              std::cout << "Not enough data captured: Aborting...\n";
+              break;
+
+            case -1:  // Not enough data
+              std::cout << "Invalid User: Aborting...\n";
+              break;
+
+            default:  // 0
+              std::cout << "Valid keystrokes. Proceeding...\n";
+              break;
+          }
         }
       } else {
         // add registration data
@@ -3931,7 +3944,6 @@ static void telemetry_carrier_set(void *carrier_data, const char *key,
 }
 
 static int com_go(String *buffer, char *line) {
-  put_info("Got here\n", INFO_INFO);
   int rc;
   telemetry_span_t *span = nullptr;
 
