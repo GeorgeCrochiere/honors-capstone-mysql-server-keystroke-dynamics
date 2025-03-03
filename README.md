@@ -11,6 +11,9 @@ Honors Program<br/>
 ## Improving Server Security by Integrating Keystroke Dynamic Authentication into System Utilities: A Case Study with MySQL
 
 ---
+### Requires Ubuntu Linux
+---
+
 ### After cloning - installation:
 1. Disable any current MySQL Servers
 2. Create a build folder in the repository
