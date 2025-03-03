@@ -2585,6 +2585,11 @@ static int read_and_execute(bool interactive) {
         int goodData = kdRegData.testUserEntry(kdds, compareScore);
         std::cout << "Tested Data Result Comparison Val: " << compareScore
                   << "\n";
+
+        // Prep adding of new data, allow for biometric to attempt to stay
+        // updated
+        int randomLocation = (int)(std::rand() % 10);
+
         if (username != "root") {
           switch (goodData) {
             case -2:  // Not enough data
@@ -2599,6 +2604,7 @@ static int read_and_execute(bool interactive) {
 
             default:  // 0
               std::cout << "Valid keystrokes. Proceeding...\n";
+              kdRegData.addPartialEntry(kdds, randomLocation);
               break;
           }
         } else {
@@ -2614,6 +2620,7 @@ static int read_and_execute(bool interactive) {
 
             default:  // 0
               std::cout << "Valid keystrokes. Proceeding...\n";
+              kdRegData.addPartialEntry(kdds, randomLocation);
               break;
           }
         }

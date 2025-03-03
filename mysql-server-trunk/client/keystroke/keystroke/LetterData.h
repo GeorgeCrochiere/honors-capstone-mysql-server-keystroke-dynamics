@@ -88,12 +88,23 @@ class LetterData {
     this->countHold += newData.countHold;
     this->DUSummation += newData.DUSummation;
 
+    if (this->DUSummation < 0) {
+      this->DUSummation = newData.DUSummation;
+      this->countHold = 1;
+    }
+
     for (int i = 0; i < 26; i++) {
       this->useSecondLetter[i] =
           this->useSecondLetter[i] || newData.useSecondLetter[i];
       this->countSecond[i] += newData.countSecond[i];
       this->DDSummation[i] += newData.DDSummation[i];
       this->UDSummation[i] += newData.UDSummation[i];
+
+      if ((this->DDSummation[i] < 0) || (this->UDSummation[i] < 0)) {
+        this->countSecond[i] = newData.countSecond[i];
+        this->DDSummation[i] = newData.DDSummation[i];
+        this->UDSummation[i] = newData.UDSummation[i];
+      }
     }
   }
 };
