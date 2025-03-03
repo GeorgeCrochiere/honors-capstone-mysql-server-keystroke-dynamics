@@ -1,8 +1,9 @@
-# George D. Crochiere
-## Software Engineering Major
-## Clarkson University - Class of 2025
-## Department of Electrical & Computer Engineering
-## Honors Program
+# Clarkson University Honors Capstone Thesis - George D. Crochiere
+Software Engineering Major
+Clarkson University - Class of 2025
+Department of Electrical & Computer Engineering
+Honors Program
+
 ---
 
 # Honors Thesis Capstone
