@@ -7,7 +7,6 @@ Honors Program<br/>
 
 ---
 
-# Honors Thesis Capstone
 ## Improving Server Security by Integrating Keystroke Dynamic Authentication into System Utilities: A Case Study with MySQL
 
 ---
