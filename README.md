@@ -11,6 +11,9 @@ Honors Program<br/>
 
 ---
 ### Original MySQL Source Code: https://github.com/mysql/mysql-server
+Modified Files:
+ - mysql-server-trunk/client/mysql.cc
+ - mysql-server-trunk/client/keystroke/... (all files)
 ---
 ### Requires Ubuntu Linux
 ---

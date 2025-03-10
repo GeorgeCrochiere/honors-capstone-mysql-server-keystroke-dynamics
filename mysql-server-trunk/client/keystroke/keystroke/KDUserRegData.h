@@ -177,9 +177,9 @@ class KDUserRegData {
 
     std::string newFileName =
         ARCHIVE_DATA + "/" + this->name + "_" + numToStr.str();
-    system(("mv /usr/local/src/rawKeyData.txt " + newFileName + "_RAW.txt")
+    system(("cp /usr/local/src/rawKeyData.txt " + newFileName + "_RAW.txt")
                .c_str());
-    system(("mv /usr/local/src/compiledKeyData.txt " + newFileName +
+    system(("cp /usr/local/src/compiledKeyData.txt " + newFileName +
             "_COMPILED.txt")
                .c_str());
   }

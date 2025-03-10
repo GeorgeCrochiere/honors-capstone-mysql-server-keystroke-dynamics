@@ -2402,6 +2402,7 @@ static int read_and_execute(bool interactive) {
       if (!glob_buffer.length()) status.query_start_line = line_number;
     } else {
       const char *prompt;
+      int delPastKeystrokes = 0;
       if (ml_comment) {
         prompt = "   /*> ";
       } else if (glob_buffer.is_empty()) {
@@ -2410,6 +2411,7 @@ static int read_and_execute(bool interactive) {
         switch (in_string) {
           case 0:
             prompt = "    -> ";
+            delPastKeystrokes = 1;
             break;
           case '\'':
             prompt = "    '> ";
@@ -2426,7 +2428,15 @@ static int read_and_execute(bool interactive) {
           default:
             assert(false);
             prompt = "    -> ";
+            delPastKeystrokes = 1;
         }
+      }
+
+      if (delPastKeystrokes != 1) {
+        // Clear out keystroke data
+        KeystrokeDynamics kd = KeystrokeDynamics();
+        kd.resetFileDataStore();
+        kd.resetFileCompileStore();
       }
 
       if (opt_outfile && glob_buffer.is_empty()) fflush(OUTFILE);
@@ -2516,145 +2526,6 @@ static int read_and_execute(bool interactive) {
           in_string = 0;
         if (interactive && status.add_to_history) add_filtered_history(line);
         continue;
-      }
-      // LINE IS HERE
-      // put_info(line_past_comments, INFO_INFO);
-      // get username and associated kd data
-      std::string username = current_user;
-      KDUserRegData kdurd = KDUserRegData(username, false);
-      // std::cout << "started import\n";
-      KDRegStore kdRegData = kdurd.importRegistrationStored();
-      KDDataStore kdds = getKDDataNeeded(line_past_comments);
-
-      KeystrokeDynamics kd = KeystrokeDynamics();
-      processDataRawToCompiled();
-      kdds = processDataCompiledToObj(kdds, false);
-      kdurd.saveKDDataArchieve();
-
-      kd.resetFileDataStore();
-      kd.resetFileCompileStore();
-      std::string createData = "";
-
-      // Test if create user
-      try {
-        char tmp[11];
-        for (int i = 0; i < 11; i++) {
-          char letter = line_past_comments[i];
-          if ((int)letter >= 97 && (int)letter <= 122) {
-            tmp[i] = (char)((int)letter - 32);
-          } else {
-            tmp[i] = letter;
-          }
-        }
-        if (strcmp(tmp, "CREATE USER") == 0) {
-          // Create user - directory, mention created (note )
-          // get new name
-          std::string line_string = line_past_comments;
-          int index = (int)(line_string.find("@"));
-          char boundChar = line_past_comments[index - 1];
-          int firstBoundChar = (int)(line_string.find(boundChar));
-          std::string nameNew =
-              line_string.substr(firstBoundChar, (index - firstBoundChar - 1));
-          addNewUser(nameNew);
-        }
-      } catch (const std::exception &e) {
-        // Ignore, just too short to be "create user", should not happen
-      }
-
-      // put_info(kdds.toString().c_str(), INFO_INFO);
-      // note: store registration data in location that works, don't focus on
-      // "optimal" storage (don't encrypt, don't modify server, just get it to
-      // function)
-
-      // Get registration daata associated w/ user, test if store vs testing
-      bool ableToTest = true;
-      for (int j = 0; j < 14; j++) {
-        if (kdds.useWordsTEMP[j] == 1) {
-          if (kdurd.isWordFull(j) == false) {
-            ableToTest = false;
-            break;
-          }
-        }
-      }
-
-      if (ableToTest) {
-        kdRegData.calcMeans();
-        kdRegData.calcVariances();
-        // Root user not checked
-        double compareScore = 1.25;
-        int goodData = kdRegData.testUserEntry(kdds, compareScore);
-        std::cout << "Tested Data Result Comparison Val: " << compareScore
-                  << "\n";
-
-        // Prep adding of new data, allow for biometric to attempt to stay
-        // updated
-        int randomLocation = (int)(std::rand() % 10);
-
-        if (username != "root") {
-          switch (goodData) {
-            case -2:  // Not enough data
-              std::cout << "Not enough data captured: Aborting...\n";
-              exit(-2);
-              break;
-
-            case -1:  // Not enough data
-              std::cout << "Invalid User: Aborting...\n";
-              exit(-1);
-              break;
-
-            default:  // 0
-              std::cout << "Valid keystrokes. Proceeding...\n";
-              kdRegData.addPartialEntry(kdds, randomLocation);
-              break;
-          }
-        } else {
-          std::cout << "Allowing due to root user.\n";
-          switch (goodData) {
-            case -2:  // Not enough data
-              std::cout << "Not enough data captured: Aborting...\n";
-              break;
-
-            case -1:  // Not enough data
-              std::cout << "Invalid User: Aborting...\n";
-              break;
-
-            default:  // 0
-              std::cout << "Valid keystrokes. Proceeding...\n";
-              kdRegData.addPartialEntry(kdds, randomLocation);
-              break;
-          }
-        }
-      } else {
-        // add registration data
-        // This would be where a user password is also requested
-        int numElemsReg = kdRegData.numItems();
-        int numPartial = 11;
-        for (int k = 0; k < 14; k++) {
-          // std::cout << "Index: " << k
-          //           << ", kdds UseWord: " << kdds.useWordsTEMP[k] << "\n";
-          if (kdds.useWordsTEMP[k] == 1) {
-            if (kdurd.getLastEmptyForWord(k) < 10) {
-              numPartial = (kdurd.getLastEmptyForWord(k) < numPartial)
-                               ? kdurd.getLastEmptyForWord(k)
-                               : numPartial;
-            }
-          }
-        }
-        // std::cout << "NumPartial: " << numPartial
-        //           << "\tSize:" << kdRegData.numItems() << "\n";
-
-        if ((numElemsReg == 0)) {
-          kdRegData.addEntry(kdds);
-          kdurd.updateRegTable(&kdRegData, 0);
-        } else if (numPartial < kdRegData.numItems()) {
-          kdRegData.addPartialEntry(kdds, numPartial);
-          kdurd.updateRegTable(&kdRegData, numPartial);
-        } else {
-          kdRegData.addEntry(kdds);
-          kdurd.updateRegTable(&kdRegData, numPartial);
-        }
-        // std::cout << kdRegData.toString() << "\n";
-        // std::cout << kdurd.toString() << "\n";
       }
     }
     if (add_line(glob_buffer, line, line_length, &in_string, &ml_comment,
@@ -3820,6 +3691,155 @@ static int com_go_impl(String *buffer, char *line [[maybe_unused]]) {
       return 0;
     return put_info("No query specified\n", INFO_ERROR);
   }
+
+  // Query - Linee in buffer
+  // std::cout << "BUFFER: " << *(buffer->ptr()) << "\t" << buffer->length()
+  //           << "\t" << buffer->is_empty() << "\n";
+  char *strQuery = new char[buffer->length() + 1]();
+  for (int c = 0; c < (int)(buffer->length()); c++) {
+    strQuery[c] = *(buffer->ptr() + (c * (int)sizeof(char)));
+  }
+  strQuery[buffer->length()] = ';';
+  // std::cout << "Query: " << strQuery << "\t" << glob_buffer.is_empty() <<
+  // "\n";
+
+  // get username and associated kd data
+  std::string username = current_user;
+  KDUserRegData kdurd = KDUserRegData(username, false);
+  // std::cout << "started import\n";
+  KDRegStore kdRegData = kdurd.importRegistrationStored();
+  KDDataStore kdds = getKDDataNeeded(strQuery);
+
+  KeystrokeDynamics kd = KeystrokeDynamics();
+  processDataRawToCompiled();
+  kdds = processDataCompiledToObj(kdds, false);
+  kdurd.saveKDDataArchieve();
+
+  // kd.resetFileDataStore();
+  // kd.resetFileCompileStore();
+  std::string createData = "";
+
+  // Test if create user
+  try {
+    char tmp[11];
+    for (int i = 0; i < 11; i++) {
+      char letter = strQuery[i];
+      if ((int)letter >= 97 && (int)letter <= 122) {
+        tmp[i] = (char)((int)letter - 32);
+      } else {
+        tmp[i] = letter;
+      }
+    }
+    if (strcmp(tmp, "CREATE USER") == 0) {
+      // Create user - directory, mention created (note )
+      // get new name
+      std::string line_string = strQuery;
+      int index = (int)(line_string.find("@"));
+      char boundChar = strQuery[index - 1];
+      int firstBoundChar = (int)(line_string.find(boundChar));
+      std::string nameNew =
+          line_string.substr(firstBoundChar, (index - firstBoundChar - 1));
+      addNewUser(nameNew);
+    }
+  } catch (const std::exception &e) {
+    // Ignore, just too short to be "create user", should not happen
+  }
+
+  // put_info(kdds.toString().c_str(), INFO_INFO);
+  // note: store registration data in location that works, don't focus on
+  // "optimal" storage (don't encrypt, don't modify server, just get it to
+  // function)
+
+  // Get registration daata associated w/ user, test if store vs testing
+  bool ableToTest = true;
+  for (int j = 0; j < 14; j++) {
+    if (kdds.useWordsTEMP[j] == 1) {
+      if (kdurd.isWordFull(j) == false) {
+        ableToTest = false;
+        break;
+      }
+    }
+  }
+
+  if (ableToTest) {
+    kdRegData.calcMeans();
+    kdRegData.calcVariances();
+    // Root user not checked
+    double compareScore = 1.25;
+    int goodData = kdRegData.testUserEntry(kdds, compareScore);
+    std::cout << "Tested Data Result Comparison Val: " << compareScore << "\n";
+
+    // Prep adding of new data, allow for biometric to attempt to stay
+    // updated
+    int randomLocation = (int)(std::rand() % 10);
+
+    if (username != "root") {
+      switch (goodData) {
+        case -2:  // Not enough data
+          std::cout << "Not enough data captured: Aborting...\n";
+          exit(-2);
+          break;
+
+        case -1:  // Not enough data
+          std::cout << "Invalid User: Aborting...\n";
+          exit(-1);
+          break;
+
+        default:  // 0
+          std::cout << "Valid keystrokes. Proceeding...\n";
+          kdRegData.addPartialEntry(kdds, randomLocation);
+          break;
+      }
+    } else {
+      std::cout << "Allowing due to root user.\n";
+      switch (goodData) {
+        case -2:  // Not enough data
+          std::cout << "Not enough data captured: Aborting...\n";
+          break;
+
+        case -1:  // Not enough data
+          std::cout << "Invalid User: Aborting...\n";
+          break;
+
+        default:  // 0
+          std::cout << "Valid keystrokes. Proceeding...\n";
+          kdRegData.addPartialEntry(kdds, randomLocation);
+          break;
+      }
+    }
+  } else {
+    // add registration data
+    // This would be where a user password is also requested
+    int numElemsReg = kdRegData.numItems();
+    int numPartial = 11;
+    for (int k = 0; k < 14; k++) {
+      // std::cout << "Index: " << k
+      //           << ", kdds UseWord: " << kdds.useWordsTEMP[k] << "\n";
+      if (kdds.useWordsTEMP[k] == 1) {
+        if (kdurd.getLastEmptyForWord(k) < 10) {
+          numPartial = (kdurd.getLastEmptyForWord(k) < numPartial)
+                           ? kdurd.getLastEmptyForWord(k)
+                           : numPartial;
+        }
+      }
+    }
+    // std::cout << "NumPartial: " << numPartial
+    //           << "\tSize:" << kdRegData.numItems() << "\n";
+
+    if ((numElemsReg == 0)) {
+      kdRegData.addEntry(kdds);
+      kdurd.updateRegTable(&kdRegData, 0);
+    } else if (numPartial < kdRegData.numItems()) {
+      kdRegData.addPartialEntry(kdds, numPartial);
+      kdurd.updateRegTable(&kdRegData, numPartial);
+    } else {
+      kdRegData.addEntry(kdds);
+      kdurd.updateRegTable(&kdRegData, numPartial);
+    }
+    // std::cout << kdRegData.toString() << "\n";
+    // std::cout << kdurd.toString() << "\n";
+  }
+
   if (!connected && reconnect()) {
     buffer->length(0);              // Remove query on error
     return opt_reconnect ? -1 : 1;  // Fatal error

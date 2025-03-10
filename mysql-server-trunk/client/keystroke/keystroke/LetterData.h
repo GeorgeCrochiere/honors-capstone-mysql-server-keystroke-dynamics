@@ -85,25 +85,25 @@ class LetterData {
     this->useLetter = this->useLetter || newData.useLetter;
     // std::cout << "Original: " << this->countHold
     //           << " New: " << newData.countHold << "\n";
-    this->countHold += newData.countHold;
-    this->DUSummation += newData.DUSummation;
+    this->countHold += abs(newData.countHold);
+    this->DUSummation += abs(newData.DUSummation);
 
     if (this->DUSummation < 0) {
-      this->DUSummation = newData.DUSummation;
-      this->countHold = 1;
+      this->DUSummation = abs(newData.DUSummation);
+      this->countHold = abs(newData.countHold);
     }
 
     for (int i = 0; i < 26; i++) {
       this->useSecondLetter[i] =
           this->useSecondLetter[i] || newData.useSecondLetter[i];
-      this->countSecond[i] += newData.countSecond[i];
-      this->DDSummation[i] += newData.DDSummation[i];
-      this->UDSummation[i] += newData.UDSummation[i];
+      this->countSecond[i] += abs(newData.countSecond[i]);
+      this->DDSummation[i] += abs(newData.DDSummation[i]);
+      this->UDSummation[i] += abs(newData.UDSummation[i]);
 
       if ((this->DDSummation[i] < 0) || (this->UDSummation[i] < 0)) {
-        this->countSecond[i] = newData.countSecond[i];
-        this->DDSummation[i] = newData.DDSummation[i];
-        this->UDSummation[i] = newData.UDSummation[i];
+        this->countSecond[i] = abs(newData.countSecond[i]);
+        this->DDSummation[i] = abs(newData.DDSummation[i]);
+        this->UDSummation[i] = abs(newData.UDSummation[i]);
       }
     }
   }
