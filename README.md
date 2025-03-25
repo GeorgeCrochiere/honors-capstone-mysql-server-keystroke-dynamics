@@ -15,10 +15,11 @@ Modified Files:
  - mysql-server-trunk/client/mysql.cc
  - mysql-server-trunk/client/keystroke/... (all files)
 ---
-### Requires Ubuntu Linux
+### Requires Ubuntu Linux (used 22.04)
 ---
 
 ### After cloning - installation:
+Method 1: Debugging
 1. Disable any current MySQL Servers
 2. Create a build folder in the repository
     - honors-capstone-mysql-server-keystroke-dynamics/build
@@ -33,6 +34,9 @@ Modified Files:
     - Execute the command: "sudo mysql -uroot -p"
     - For the MySQL password initially, enter the password from the error.log file
     - Treat the system as a normal MySQL terminal
+  
+Method 2: Normal
+- This repository can also installed similar to installing the MySQL program from its source code, which can be found [here](https://dev.mysql.com/doc/refman/8.4/en/installing-source-distribution.html#installing-source-distribution-configure-distribution)
 
 ---
 ### Keystroke Dynamics data files:
