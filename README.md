@@ -18,7 +18,8 @@ Modified Files:
 ### Requires Ubuntu Linux (used 22.04)
 ---
 
-### After cloning - installation:
+### Installation:
+- NOTE: The installation process can take some time due to the MySQL build process.
 - This repository can also installed similar to installing the MySQL program from its source code, which can be found [here](https://dev.mysql.com/doc/refman/8.4/en/installing-source-distribution.html)
   - Ensure MySQL is not installed on the system
   - Clone the repository to your system
