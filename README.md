@@ -20,7 +20,28 @@ Modified Files:
 
 ### After cloning - installation:
 - This repository can also installed similar to installing the MySQL program from its source code, which can be found [here](https://dev.mysql.com/doc/refman/8.4/en/installing-source-distribution.html)
+  - Ensure MySQL is not installed on the system
+  - Clone the repository to your system
+  - Navigate to inside the directory ```honors-capstone-mysql-server-keystroke-dynamics``` from the cloned repository
+  - ```sudo apt update```
+  - ```sudo apt upgrade```
+  - ```sudo apt-get install build-essential cmake libcurses5-dev git libssl-dev pkgconfig bison```
+  - ```sudo groupadd mysql```
+  - ```sudo useradd -r -g mysql -s /bin/false mysql```
+  - ```mkdir build```
+  - ```cd build```
+  - ```cmake ../mysql-server-trunk -DWITH_SSL=```
+  - ```make```
+  - ```sudo make install```
+  - ```cd /usr/local/mysql```
+  - ```sudo mkdir mysql-files```
+  - ```sudo chown mysql:mysql mysql-files```
+  - ```sudo chmod 750 mysql-files```
+  - ```sudo ./bin/mysql --initialize --user=mysql```
+  - Keep track of the temporary password that is generated from this command; you'll need it as the initial password for starting MySQL
+  - ```sudo ./bin/mysqld_safe --user=mysql```
 - The server can be started with the command ```sudo systemctl start mysql```
+  - This command needs to be executed each time the system is started.
 - The client can be started in the directory ```/usr/local/mysql``` and started with ```sudo ./bin/mysql -u root -p```.
 - Keystroke Dynamics will be enabled, but will not kick the root user.
 - Data entry needs to be completed 
