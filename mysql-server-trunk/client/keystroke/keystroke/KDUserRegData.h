@@ -151,8 +151,23 @@ class KDUserRegData {
   }
 
   void initSaveLocation() {
-    system(("mkdir -p " + SAVE_LOCATION).c_str());
-    system(("mkdir -p " + ARCHIVE_DATA).c_str());
+    system(("if test -d " + SAVE_LOCATION +
+            "; then echo test > /dev/null; else mkdir -p " + SAVE_LOCATION +
+            "; fi")
+               .c_str());
+    system(("if test -d " + ARCHIVE_DATA +
+            "; then echo test > /dev/null; else mkdir -p " + ARCHIVE_DATA +
+            "; fi")
+               .c_str());
+  }
+
+  void testCurrentUserDEBUG() {
+    std::string dir = SAVE_LOCATION + "/" + this->name;
+    struct stat sb;
+
+    if (!(stat(dir.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode))) {
+      createUser();
+    }
   }
 
   void createUser() {

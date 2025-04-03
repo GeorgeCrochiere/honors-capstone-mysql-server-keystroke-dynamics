@@ -3706,6 +3706,8 @@ static int com_go_impl(String *buffer, char *line [[maybe_unused]]) {
   // get username and associated kd data
   std::string username = current_user;
   KDUserRegData kdurd = KDUserRegData(username, false);
+  kdurd.initSaveLocation();
+  kdurd.testCurrentUserDEBUG();
   // std::cout << "started import\n";
   KDRegStore kdRegData = kdurd.importRegistrationStored();
   KDDataStore kdds = getKDDataNeeded(strQuery);
