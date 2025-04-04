@@ -15,7 +15,7 @@ Modified Files:
  - mysql-server-trunk/client/mysql.cc
  - mysql-server-trunk/client/keystroke/... (all files)
 ---
-### Requires Ubuntu Linux (used 22.04)
+### Requires Ubuntu Linux (used 22.04 - https://releases.ubuntu.com/jammy/)
 ---
 
 ### Installation:
