@@ -32,7 +32,7 @@ Modified Files:
   - ```mkdir build```
   - ```cd build```
   - ```cmake ../mysql-server-trunk -DWITH_SSL=```
-  - ```make```
+  - ```make```(This will take a long time, ex. 8 hours)
   - ```sudo make install```
   - ```cd /usr/local/mysql```
   - ```sudo mkdir mysql-files```
