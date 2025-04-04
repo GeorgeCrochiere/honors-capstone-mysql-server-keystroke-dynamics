@@ -32,7 +32,7 @@ Modified Files:
   - ```mkdir build```
   - ```cd build```
   - ```cmake ../mysql-server-trunk -DWITH_SSL=```
-  - ```make```(This will take a long time, ex. 8 hours)
+  - ```make``` (This will take a long time, ex. 8 hours)
   - ```sudo make install```
   - ```cd /usr/local/mysql```
   - ```sudo mkdir mysql-files```
@@ -45,7 +45,7 @@ Modified Files:
   - This command needs to be executed each time the system is started.
 - The client can be started in the directory ```/usr/local/mysql``` and started with ```sudo ./bin/mysql -u root -p```.
 - Keystroke Dynamics will be enabled, but will not kick the root user.
-- Data entry needs to be completed 
+- Data entry needs to be completed for a set of keywords to be used. For the purpose of this project, the words need to be entered fully with all keystrokes 10 times.
 
 ---
 ### Keystroke Dynamics data files:
