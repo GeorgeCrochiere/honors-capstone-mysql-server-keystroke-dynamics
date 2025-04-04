@@ -26,7 +26,7 @@ Modified Files:
   - Navigate to inside the directory ```honors-capstone-mysql-server-keystroke-dynamics``` from the cloned repository
   - ```sudo apt update```
   - ```sudo apt upgrade```
-  - ```sudo apt-get install build-essential cmake libcurses5-dev git libssl-dev pkgconfig bison```
+  - ```sudo apt-get install build-essential cmake libncurses5-dev git libssl-dev pkgconfig bison```
   - ```sudo groupadd mysql```
   - ```sudo useradd -r -g mysql -s /bin/false mysql```
   - ```mkdir build```
