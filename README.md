@@ -32,7 +32,7 @@ Modified Files:
   - ```mkdir build```
   - ```cd build```
   - ```cmake ../mysql-server-trunk -DWITH_SSL=```
-  - ```make``` (This will take a long time, ex. 8 hours)
+  - ```make``` (This will take a long time, ex. 8+ hours)
   - ```sudo make install```
   - ```cd /usr/local/mysql```
   - ```sudo mkdir mysql-files```
@@ -41,11 +41,11 @@ Modified Files:
   - ```sudo ./bin/mysql --initialize --user=mysql```
   - Keep track of the temporary password that is generated from this command; you'll need it as the initial password for starting MySQL
   - ```sudo ./bin/mysqld_safe --user=mysql```
-- The server can be started with the command ```sudo systemctl start mysql```
-  - This command needs to be executed each time the system is started.
+  - The server can be started with the command ```sudo ./bin/mysqld_safe --user=mysql```
+    - This command needs to be executed each time the system is started.
 - The client can be started in the directory ```/usr/local/mysql``` and started with ```sudo ./bin/mysql -u root -p```.
 - Keystroke Dynamics will be enabled, but will not kick the root user.
-- Data entry needs to be completed for a set of keywords to be used. For the purpose of this project, the words need to be entered fully with all keystrokes 10 times.
+- Data entry needs to be completed for a set of keywords to be used. For the purpose of this project, the words need to be entered fully with all keystrokes 10 times for the keywords to take effect (ex. "show databases;").
 
 ---
 ### Keystroke Dynamics data files:
